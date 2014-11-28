@@ -1,0 +1,23 @@
+module "black-book" {
+  namespace "urn:ietf:params:xml:ns:yang:black-book";
+  prefix "bb";
+  description "black-book module";
+  contact "zvonimir.fras@sartura.hr";
+
+  revision "2014-11-28" {
+    description
+      "Initial revision.";
+  }
+
+  container "black-book" {
+    list person {
+      key "name";
+      leaf "name" {
+        type "string";
+      }
+      leaf "phone" {
+        type "string";
+      }
+    }
+  }
+}

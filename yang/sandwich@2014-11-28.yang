@@ -1,0 +1,29 @@
+module "sandwich" {
+  namespace "urn:ietf:params:xml:ns:yang:sandwich";
+  prefix "sw";
+  description "sandwich module";
+  contact "zvonimir.fras@sartura.hr";
+
+  revision "2014-11-28" {
+    description
+      "Initial revision.";
+  }
+
+  container "sandwich" {
+    leaf "name" {
+      type "string";
+    }
+    leaf "butter" {
+      type "boolean";
+    }
+    leaf "meat" {
+      type "string";
+    }
+    leaf "cheese" {
+      type "string";
+    }
+    leaf "salad" {
+      type "string";
+    }
+  }
+}

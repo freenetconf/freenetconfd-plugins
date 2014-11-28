@@ -26,3 +26,7 @@ series
 
 # ctags
 tags
+
+# KDevelop
+.kdev4
+freenetconf-plugins.kdev4
