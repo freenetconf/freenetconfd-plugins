@@ -3,7 +3,7 @@ CFLAGS=-g -shared -fPIC --std=gnu11
 BUILD_DIR=build
 INSTALL_DIR=/opt/git/freenetconfd/plugins
 
-all: sandwich black-book shopping-list
+all: sandwich black-book shopping-list house-lockdown
 
 build_dir:
 	@if [ ! -d "${BUILD_DIR}" ]; then mkdir -p "${BUILD_DIR}"; fi
@@ -16,6 +16,9 @@ black-book: build_dir black-book.c
 
 shopping-list: build_dir shopping-list.c
 	$(CC) $(CFLAGS) -o $(BUILD_DIR)/shopping-list.so shopping-list.c
+
+house-lockdown: build_dir house-lockdown.c
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)/house-lockdown.so house-lockdown.c
 
 install:
 	@cp $(BUILD_DIR)/* $(INSTALL_DIR)
