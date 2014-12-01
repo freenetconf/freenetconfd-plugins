@@ -1,0 +1,17 @@
+module "shopping-list" {
+  namespace "xml:ns:yang:shopping-list";
+  prefix "sl";
+  description "shopping-list module";
+  contact "zvonimir.fras@sartura.hr";
+
+  revision "2014-11-28" {
+    description
+      "Initial revision.";
+  }
+
+  container "shopping-list" {
+    leaf-list item {
+	   type string;
+    }
+  }
+}
