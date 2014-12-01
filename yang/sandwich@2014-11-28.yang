@@ -1,5 +1,5 @@
 module "sandwich" {
-  namespace "urn:ietf:params:xml:ns:yang:sandwich";
+  namespace "xml:ns:yang:sandwich";
   prefix "sw";
   description "sandwich module";
   contact "zvonimir.fras@sartura.hr";
