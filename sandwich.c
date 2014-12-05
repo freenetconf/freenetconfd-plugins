@@ -17,18 +17,21 @@
 #include <freenetconfd/datastore.h>
 #include <freenetconfd/freenetconfd.h>
 
+__unused struct module *init();
+__unused void destroy();
+
 struct module m;
 char *ns = "xml:ns:yang:sandwich";
 
 datastore_t root = {"root",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,0,0};
 
-int set_name(char *name)
+static int set_name(char *name)
 {
 	printf("Name set to: %s\n", name);
 	return 0;
 }
 
-int create_store()
+static int create_store()
 {
 	// sandwich
 	datastore_t *sandwich = ds_add_child_create(&root, "sandwich", NULL, ns, NULL, 0);
@@ -41,7 +44,7 @@ int create_store()
 	return 0;
 }
 
-struct module *init()
+__unused struct module *init()
 {
 	create_store();
 
@@ -53,7 +56,7 @@ struct module *init()
 	return &m;
 }
 
-void destroy()
+__unused void destroy()
 {
 	ds_free(root.child, 1);
 	root.child = NULL;

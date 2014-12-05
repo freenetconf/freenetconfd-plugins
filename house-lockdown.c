@@ -17,6 +17,11 @@
 #include <freenetconfd/datastore.h>
 #include <freenetconfd/freenetconfd.h>
 
+int rpc_house_lockdown(struct rpc_data *data);
+
+__unused struct module *init();
+__unused void destroy();
+
 struct module m;
 char *ns = "xml:ns:yang:house-lockdown";
 
@@ -38,7 +43,7 @@ struct rpc_method rpc[] = {
 	{"house-lockdown", rpc_house_lockdown},
 };
 
-struct module *init()
+__unused struct module *init()
 {
 	m.rpcs = rpc;
 	m.rpc_count = (sizeof(rpc) / sizeof(*(rpc))); // to be filled directly by code generator
@@ -48,7 +53,7 @@ struct module *init()
 	return &m;
 }
 
-void destroy()
+__unused void destroy()
 {
 	ds_free(root.child, 1);
 	root.child = NULL;
