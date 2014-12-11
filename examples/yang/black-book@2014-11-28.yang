@@ -1,5 +1,5 @@
 module "black-book" {
-  namespace "xml:ns:yang:black-book";
+  namespace "urn:ietf:params:xml:ns:yang:black-book";
   prefix "bb";
   description "black-book module";
   contact "zvonimir.fras@sartura.hr";

@@ -1,5 +1,5 @@
 module "house-lockdown" {
-  namespace "xml:ns:yang:house-lockdown";
+  namespace "urn:ietf:params:xml:ns:yang:house-lockdown";
   prefix "hl";
   description "house-lockdown module";
   contact "zvonimir.fras@sartura.hr";

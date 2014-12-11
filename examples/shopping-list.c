@@ -21,7 +21,7 @@ __unused struct module *init();
 __unused void destroy();
 
 struct module m;
-char *ns = "xml:ns:yang:shopping-list";
+char *ns = "urn:ietf:params:xml:ns:yang:shopping-list";
 
 datastore_t root = {"root",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,0,0};
 

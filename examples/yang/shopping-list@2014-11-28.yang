@@ -1,5 +1,5 @@
 module "shopping-list" {
-  namespace "xml:ns:yang:shopping-list";
+  namespace "urn:ietf:params:xml:ns:yang:shopping-list";
   prefix "sl";
   description "shopping-list module";
   contact "zvonimir.fras@sartura.hr";
