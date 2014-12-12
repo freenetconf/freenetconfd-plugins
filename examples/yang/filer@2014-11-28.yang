@@ -1,0 +1,17 @@
+module "filer" {
+  namespace "urn:ietf:params:xml:ns:yang:filer";
+  prefix "f";
+  description "filer module";
+  contact "zvonimir.fras@sartura.hr";
+
+  revision "2014-11-28" {
+    description
+      "Initial revision.";
+  }
+
+  container "filer" {
+    leaf "data" {
+      type "string";
+    }
+  }
+}

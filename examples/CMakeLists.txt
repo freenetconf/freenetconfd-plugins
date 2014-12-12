@@ -9,6 +9,9 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../lib/freenetcon
 ADD_LIBRARY(example_black_book MODULE black-book.c)
 SET_TARGET_PROPERTIES(example_black_book PROPERTIES OUTPUT_NAME black-book PREFIX "")
 
+ADD_LIBRARY(example_filer MODULE filer.c)
+SET_TARGET_PROPERTIES(example_filer PROPERTIES OUTPUT_NAME filer PREFIX "")
+
 ADD_LIBRARY(example_house_lockdown MODULE house-lockdown.c)
 SET_TARGET_PROPERTIES(example_house_lockdown PROPERTIES OUTPUT_NAME house-lockdown PREFIX "")
 
@@ -21,6 +24,7 @@ SET_TARGET_PROPERTIES(example_shopping_list PROPERTIES OUTPUT_NAME shopping-list
 INSTALL(
 	TARGETS 
 		example_black_book
+		example_filer
 		example_house_lockdown
 		example_sandwich
 		example_shopping_list
@@ -30,6 +34,7 @@ INSTALL(
 INSTALL(
 	FILES
 		yang/black-book@2014-11-28.yang
+		yang/filer@2014-11-28.yang
 		yang/house-lockdown@2014-11-28.yang
 		yang/sandwich@2014-11-28.yang
 		yang/shopping-list@2014-11-28.yang
