@@ -18,6 +18,7 @@
 #include <freenetconfd/freenetconfd.h>
 
 #include <stdio.h>
+#include <unistd.h>
 
 __unused struct module *init();
 __unused void destroy();
@@ -64,13 +65,29 @@ static char *get_data(datastore_t *datastore)
 	return buffer;
 }
 
+static int del_file(struct datastore *self, void *data)
+{
+	unlink(filename);
+	return 0;
+}
+
+static datastore_t *create_data_node(datastore_t *self, char *name, char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *data = ds_add_child_create(self, name, value, ns, target_name, target_position);
+	data->get = get_data;
+	data->set = set_data;
+	data->del = del_file;
+
+	return data;
+}
+
 static int create_store()
 {
 	// filer
 	datastore_t *filer = ds_add_child_create(&root, "filer", NULL, ns, NULL, 0);
-	datastore_t *data = ds_add_child_create(filer, "data", "original", NULL, NULL, 0);
-	data->get = get_data;
-	data->set = set_data;
+	filer->create_child = create_data_node;
+	filer->create_child(filer, "data", "original", NULL, NULL, 0);
+
 	return 0;
 }
 
