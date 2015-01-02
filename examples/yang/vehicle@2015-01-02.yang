@@ -1,0 +1,34 @@
+module "vehicle" {
+  namespace "urn:ietf:params:xml:ns:yang:vehicle";
+  prefix "cr";
+  description "vehicle module";
+  contact "zvonimir.fras@sartura.hr";
+
+  revision "2015-01-02" {
+    description
+      "Initial revision.";
+  }
+
+  container "vehicle" {
+    leaf "name" {
+      description "vehicle name, i.e. Honda, Acura, Mazda, Ford...";
+      type "string";
+    }
+    leaf "rims" {
+      description "aluminium, chrome, magnesium, alloy, teflon...";
+      type "string";
+    }
+    leaf "color" {
+      description "color of the vehicle";
+      type "string";
+    }
+    leaf "abs" {
+      description "does the vehicle have anti-block system breaks?";
+      type "boolean";
+    }
+    leaf "ac" {
+      description "if it exists, represents the type of air conditioning, i.e. automatic, manual...";
+      type "string";
+    }
+  }
+}
