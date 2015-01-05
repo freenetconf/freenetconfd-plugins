@@ -31,7 +31,7 @@ of system calls required to fetch or set your data.
 ### Installation
 
 #### Prerequisites
-    freenetonfd
+    freenetconfd
 
 #### Installation
     git clone https://github.com/freenetconf/freenetconfd-plugins.git
