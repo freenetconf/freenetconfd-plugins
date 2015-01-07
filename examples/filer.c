@@ -28,7 +28,7 @@ char *ns = "urn:ietf:params:xml:ns:yang:filer";
 
 static char *filename = "/tmp/freenetconfd-filer";
 
-datastore_t root = {"root",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,0,0};
+datastore_t root = DATASTORE_ROOT_DEFAULT;
 
 static int set_data(char *data)
 {

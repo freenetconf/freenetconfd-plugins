@@ -34,7 +34,7 @@ static char *filename_abs = "/tmp/freenetconfd-vehicle_abs";
 static char *filename_ac = "/tmp/freenetconfd-vehicle_ac";
 
 // root node default setup
-datastore_t root = {"root",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,0,0};
+datastore_t root = DATASTORE_ROOT_DEFAULT;
 
 
 static int set_node_rims(char *data)
