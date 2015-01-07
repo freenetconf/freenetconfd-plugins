@@ -23,7 +23,7 @@ __unused void destroy();
 struct module m;
 char *ns = "urn:ietf:params:xml:ns:yang:sandwich";
 
-datastore_t root = {"root",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,0,0};
+datastore_t root = DATASTORE_ROOT_DEFAULT;
 
 static int set_name(char *name)
 {
