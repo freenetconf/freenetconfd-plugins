@@ -21,6 +21,9 @@ SET_TARGET_PROPERTIES(example_sandwich PROPERTIES OUTPUT_NAME sandwich PREFIX ""
 ADD_LIBRARY(example_shopping_list MODULE shopping-list.c)
 SET_TARGET_PROPERTIES(example_shopping_list PROPERTIES OUTPUT_NAME shopping-list PREFIX "")
 
+ADD_LIBRARY(example_vehicle MODULE vehicle.c)
+SET_TARGET_PROPERTIES(example_vehicle PROPERTIES OUTPUT_NAME vehicle PREFIX "")
+
 INSTALL(
 	TARGETS 
 		example_black_book
@@ -28,6 +31,7 @@ INSTALL(
 		example_house_lockdown
 		example_sandwich
 		example_shopping_list
+		example_vehicle
 	LIBRARY DESTINATION lib/
 )
 
@@ -38,5 +42,6 @@ INSTALL(
 		yang/house-lockdown@2014-11-28.yang
 		yang/sandwich@2014-11-28.yang
 		yang/shopping-list@2014-11-28.yang
+		yang/vehicle@2015-01-02.yang
 	DESTINATION etc/yang/
 )
