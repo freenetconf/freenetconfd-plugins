@@ -5,7 +5,8 @@ PROJECT(freenetconfd-plugins)
 ADD_DEFINITIONS(-Os -Wall --std=gnu11 -Wmissing-declarations -D_GNU_SOURCE)
 INCLUDE_DIRECTORIES(include)
 
-OPTION(EXAMPLE_PLUGINS "build example plugins" ON)
+OPTION(EXAMPLE_PLUGINS "build example plugins" OFF)
+OPTION(OPENWRT_PLUGINS "build OpenWrt plugins" OFF)
 
 FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
 
@@ -13,4 +14,8 @@ SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/freenetconfd)
 
 IF (EXAMPLE_PLUGINS)
   ADD_SUBDIRECTORY(examples)
+ENDIF ()
+
+IF (OPENWRT_PLUGINS)
+  ADD_SUBDIRECTORY(openwrt)
 ENDIF ()

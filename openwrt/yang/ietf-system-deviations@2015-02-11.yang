@@ -1,0 +1,69 @@
+module openwrt-deviations {
+  namespace "urn:openwrt:deviations";
+
+  prefix "owrtd";
+
+  // import statements here
+
+  import ietf-system {
+    prefix "sys";
+    revision-date 2014-08-06;
+  }
+
+  revision "2015-02-11" {
+    description
+    "Version 0.1.0
+     NTP and dns-resolver deviations.";
+  }
+
+  deviation /sys:system/sys:radius {
+    description
+      "RADIUS is not supported";
+    deviate not-supported;
+  }
+
+  deviation /sys:system/sys:authentication {
+    description
+      "Authentication is not supported";
+    deviate not-supported;
+  }
+
+  deviation /sys:system/sys:ntp/sys:server/sys:transport/sys:udp {
+    description
+      "In OpenWRT, name is used as address";
+    deviate not-supported;
+  }
+
+  deviation /sys:system/sys:ntp/sys:server/sys:association-type {
+    description
+      "Out of Scope - Not required for OpenWRT.
+       OpenWRT will probably only use default NTP options.";
+    deviate not-supported;
+  }
+
+  deviation /sys:system/sys:ntp/sys:server/sys:iburst {
+    description
+      "Out of Scope - Not required for OpenWRT.
+       OpenWRT will probably only use default NTP options.";
+    deviate not-supported;
+  }
+
+  deviation /sys:system/sys:ntp/sys:server/sys:prefer {
+    description
+      "Out of Scope - Not required for OpenWRT.
+       No special treatment of one server needed.";
+    deviate not-supported;
+  }
+
+  deviation /sys:system/sys:dns-resolver/sys:server/sys:transport {
+    description
+      "Out of Scope - Not required for OpenWRT.";
+    deviate not-supported;
+  }
+
+    deviation /sys:system/sys:dns-resolver/sys:options {
+    description
+      "Out of Scope - Not required for OpenWRT.";
+    deviate not-supported;
+  }
+}
