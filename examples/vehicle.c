@@ -137,7 +137,6 @@ static char *get_node_name(datastore_t *datastore)
 static char *get_node_rims(datastore_t *datastore)
 {
 	FILE *fp = fopen(filename_rims, "r");
-	int i=0;
 	size_t n = 1024;
 
 	char *buffer = malloc(n);
@@ -156,7 +155,6 @@ static char *get_node_rims(datastore_t *datastore)
 static char *get_node_color(datastore_t *datastore)
 {
 	FILE *fp = fopen(filename_color, "r");
-	int i;
 	size_t n = 1024;
 
 	char *buffer = malloc(n);
@@ -175,7 +173,6 @@ static char *get_node_color(datastore_t *datastore)
 static char *get_node_abs(datastore_t *datastore)
 {
 	FILE *fp = fopen(filename_abs, "r");
-	int i=0;
 	size_t n = 1024;
 
 	char *buffer = malloc(n);
@@ -194,7 +191,6 @@ static char *get_node_abs(datastore_t *datastore)
 static char *get_node_ac(datastore_t *datastore)
 {
 	FILE *fp = fopen(filename_ac, "r");
-	int i=0;
 	size_t n = 1024;
 
 	char *buffer = malloc(n);
