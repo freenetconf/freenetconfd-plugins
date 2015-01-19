@@ -49,6 +49,34 @@ static void generic_update(datastore_t *node)
 	if (node) printf("Datastore node UPDATE\t%s: %s\n", node->name, node->value);
 }
 
+static int set_hostname(char *data)
+{
+	char cmd[] = "system.@system[0].hostname=", *full_cmd;
+	struct uci_context *c;
+	struct uci_ptr ptr;
+
+	full_cmd = malloc(strlen(data) + strlen(cmd) + 1);
+
+	strcpy(full_cmd, cmd);
+	strcat(full_cmd, data);
+
+	c = uci_alloc_context();
+
+	memset(&ptr, 0, sizeof(ptr));
+
+	if (uci_lookup_ptr(c, &ptr, full_cmd,true) != UCI_OK)
+	{
+		return -1;
+	}
+
+	uci_set(c, &ptr);
+	uci_save(c, ptr.p);
+
+	uci_free_context(c);
+
+	return 0;
+}
+
 static char *get_hostname(datastore_t *datastore)
 {
 	char *path, *buf;
@@ -69,6 +97,57 @@ static char *get_hostname(datastore_t *datastore)
 	return buf;
 }
 
+static char *get_timezone_location(datastore_t *datastore)
+{
+	FILE *fp = fopen("/etc/TZ", "r");
+	size_t n = 1024;
+	char *buffer = malloc(n);
+
+	if (!fp)
+	{
+		return strcpy(buffer,"No data yet");
+	}
+
+	getline(&buffer, &n, fp);
+	fclose(fp);
+
+	return buffer;
+}
+
+static int set_timezone_location(char *data)
+{
+	FILE *fp = fopen("/etc/TZ", "w");
+
+	if (!fp)
+	{
+		DEBUG("ERROR: Cannot open \"%s\" for writing\n", "/etc/TZ");
+		return -1;
+	}
+
+	fprintf(fp, "%s\n", data);
+	fclose(fp);
+
+	return 0;
+}
+
+
+//put number of list element in data
+static int set_server(char *data)
+{
+	printf("%s\n", data);
+	return 0;
+}
+
+static char* get_current_datetime(datastore_t *datastore)
+{
+	time_t rawtime;
+	struct tm * timeinfo;
+
+	time(&rawtime);
+	timeinfo = localtime ( &rawtime );
+	return asctime(timeinfo);
+}
+
 static int create_store()
 {
 	// ietf-system
@@ -79,6 +158,7 @@ static int create_store()
 	location->update = generic_update;
 	datastore_t *hostname = ds_add_child_create(system, "hostname", "OpenWrt", NULL, NULL, 0); // string
 	hostname->get = get_hostname;
+	hostname->set = set_hostname;
 	hostname->update = generic_update;
 	ds_add_child_create(system, "contact", "yes, please", NULL, NULL, 0); // string
 	datastore_t *clock = ds_add_child_create(system, "clock", NULL, NULL, NULL, 0);
@@ -86,6 +166,8 @@ static int create_store()
 
 	// clock
 	datastore_t *timezone_location = ds_add_child_create(clock, "timezone-location", "Europe/Zagreb", NULL, NULL, 0); // string
+	timezone_location->get = get_timezone_location;
+	timezone_location->set = set_timezone_location;
 	timezone_location->update = generic_update;
 	ds_add_child_create(clock, "timezone-utc-offset", "60", NULL, NULL, 0); // int16
 
@@ -97,6 +179,7 @@ static int create_store()
 	{
 		//server
 		datastore_t *server = ds_add_child_create(ntp, "server", NULL, NULL, NULL, 0);
+		server->set = set_server;
 		server->is_list = 1;
 		char server_name[BUFSIZ];
 		snprintf(server_name, BUFSIZ, "server%d", i);
@@ -152,8 +235,11 @@ static int create_store()
 
 	datastore_t *clock_state = ds_add_child_create(system_state, "clock", NULL, ns, NULL, 0);
 
-	ds_add_child_create(clock_state, "current_datetime", "now", ns, NULL, 0);
-	ds_add_child_create(clock_state, "boot-datetime", "before", ns, NULL, 0);
+	datastore_t *current_datetime = ds_add_child_create(clock_state, "current_datetime", "now", ns, NULL, 0);
+	current_datetime->get = get_current_datetime;
+
+	datastore_t *boot_datetime = ds_add_child_create(clock_state, "boot-datetime", "before", ns, NULL, 0);
+	//boot_datetime->get = get_boot_datetime;
 
 	return 0;
 }
