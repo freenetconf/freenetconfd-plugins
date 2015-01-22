@@ -64,7 +64,35 @@ static int set_hostname(char *data)
 
 	memset(&ptr, 0, sizeof(ptr));
 
-	if (uci_lookup_ptr(c, &ptr, full_cmd,true) != UCI_OK)
+	if (uci_lookup_ptr(c, &ptr, full_cmd, true) != UCI_OK)
+	{
+		return -1;
+	}
+
+	uci_set(c, &ptr);
+	uci_save(c, ptr.p);
+
+	uci_free_context(c);
+
+	return 0;
+}
+
+static int set_location(char *data)
+{
+	char cmd[] = "system.@system[0].location=", *full_cmd;
+	struct uci_context *c;
+	struct uci_ptr ptr;
+
+	full_cmd = malloc(strlen(data) + strlen(cmd) + 1);
+
+	strcpy(full_cmd, cmd);
+	strcat(full_cmd, data);
+
+	c = uci_alloc_context();
+
+	memset(&ptr, 0, sizeof(ptr));
+
+	if (uci_lookup_ptr(c, &ptr, full_cmd, true) != UCI_OK)
 	{
 		return -1;
 	}
@@ -105,7 +133,7 @@ static char *get_timezone_location(datastore_t *datastore)
 
 	if (!fp)
 	{
-		return strcpy(buffer,"No data yet");
+		return strcpy(buffer, "No data yet");
 	}
 
 	getline(&buffer, &n, fp);
@@ -138,14 +166,34 @@ static int set_server(char *data)
 	return 0;
 }
 
-static char* get_current_datetime(datastore_t *datastore)
+static char *get_current_datetime(datastore_t *datastore)
 {
 	time_t rawtime;
-	struct tm * timeinfo;
+	struct tm *timeinfo;
 
 	time(&rawtime);
 	timeinfo = localtime ( &rawtime );
 	return asctime(timeinfo);
+}
+
+static char *get_location(datastore_t *datastore)
+{
+	char *path, *buf;
+
+	path = strdup("system.@system[0].location");
+
+	if (uci_lookup_ptr(c, &p, path, true) != UCI_OK)
+	{
+		free(path);
+		DEBUG("uci error\n");
+		return NULL;
+	}
+	free(path);
+
+	buf = malloc(sizeof(char) * strlen(p.o->v.string));
+	strcpy(buf, p.o->v.string);
+
+	return buf;
 }
 
 static int create_store()
@@ -154,26 +202,39 @@ static int create_store()
 	datastore_t *system = ds_add_child_create(&root, "system", NULL, ns, NULL, 0);
 	system->update = generic_update;
 
-	datastore_t *location = ds_add_child_create(system, "location", "Zagreb", NULL, NULL, 0); // string
+	datastore_t *location = ds_add_child_create(system, "location", "Zagreb", NULL,
+	                        NULL, 0); // string
+	location->get = get_location;
+	location->set = set_location;
+
 	location->update = generic_update;
-	datastore_t *hostname = ds_add_child_create(system, "hostname", "OpenWrt", NULL, NULL, 0); // string
+	datastore_t *hostname = ds_add_child_create(system, "hostname", "OpenWrt", NULL,
+	                        NULL, 0); // string
 	hostname->get = get_hostname;
 	hostname->set = set_hostname;
 	hostname->update = generic_update;
+	
 	ds_add_child_create(system, "contact", "yes, please", NULL, NULL, 0); // string
 	datastore_t *clock = ds_add_child_create(system, "clock", NULL, NULL, NULL, 0);
 	datastore_t *ntp = ds_add_child_create(system, "ntp", NULL, NULL, NULL, 0);
 
 	// clock
-	datastore_t *timezone_location = ds_add_child_create(clock, "timezone-location", "Europe/Zagreb", NULL, NULL, 0); // string
+	datastore_t *timezone_location = ds_add_child_create(clock, "timezone-location",
+	                                 "Europe/Zagreb", NULL, NULL, 0); // string
 	timezone_location->get = get_timezone_location;
 	timezone_location->set = set_timezone_location;
 	timezone_location->update = generic_update;
 	ds_add_child_create(clock, "timezone-utc-offset", "60", NULL, NULL, 0); // int16
+	//TODO
+	//does offset needs to written
+	
 
 	// ntp
 	ds_add_child_create(ntp, "enabled", "false", NULL, NULL, 0); // bool
 
+	//TODO
+	//how to bind function to list element
+	//information ti obrain index
 	// server list
 	for (int i = 1; i < 3; i++)
 	{
@@ -183,14 +244,18 @@ static int create_store()
 		server->is_list = 1;
 		char server_name[BUFSIZ];
 		snprintf(server_name, BUFSIZ, "server%d", i);
-		datastore_t *name = ds_add_child_create(server, "name", server_name, NULL, NULL, 0); // string
+		datastore_t *name = ds_add_child_create(server, "name", server_name, NULL, NULL,
+		                                        0); // string
 		name->is_key = 1;
 
-		datastore_t *association_type = ds_add_child_create(server, "association-type", NULL, NULL, NULL, 0);
+		datastore_t *association_type = ds_add_child_create(server, "association-type",
+		                                NULL, NULL, NULL, 0);
 		ds_set_is_config(association_type, 0, 0);
-		datastore_t *iburst = ds_add_child_create(server, "iburst", "false", NULL, NULL, 0);
+		datastore_t *iburst = ds_add_child_create(server, "iburst", "false", NULL, NULL,
+		                      0);
 		ds_set_is_config(iburst, 0, 0);
-		datastore_t *prefer = ds_add_child_create(server, "prefer", "false", NULL, NULL, 0);
+		datastore_t *prefer = ds_add_child_create(server, "prefer", "false", NULL, NULL,
+		                      0);
 		ds_set_is_config(prefer, 0, 0);
 
 		// udp
@@ -199,46 +264,59 @@ static int create_store()
 		ds_add_child_create(udp, "port", "8088", NULL, NULL, 0); // int16
 	}
 
-	datastore_t *dns_resolver = ds_add_child_create(system, "dns-resolver", NULL, NULL, NULL, 0);
-	ds_add_child_create(dns_resolver, "search", "localhost1", NULL, NULL, 0)->is_list = 1;
-	ds_add_child_create(dns_resolver, "search", "localhost2", NULL, NULL, 0)->is_list = 1;
+	datastore_t *dns_resolver = ds_add_child_create(system, "dns-resolver", NULL,
+	                            NULL, NULL, 0);
+	ds_add_child_create(dns_resolver, "search", "localhost1", NULL, NULL,
+	                    0)->is_list = 1;
+	ds_add_child_create(dns_resolver, "search", "localhost2", NULL, NULL,
+	                    0)->is_list = 1;
 
 	for (int i = 1; i < 3; i++)
 	{
-		datastore_t *server = ds_add_child_create(dns_resolver, "server", NULL, NULL, NULL, 0);
+		datastore_t *server = ds_add_child_create(dns_resolver, "server", NULL, NULL,
+		                      NULL, 0);
 		char server_name[BUFSIZ];
 		snprintf(server_name, BUFSIZ, "server%d", i);
-		datastore_t *name = ds_add_child_create(server, "name", server_name, NULL, NULL, 0); // string
+		datastore_t *name = ds_add_child_create(server, "name", server_name, NULL, NULL,
+		                                        0); // string
 		name->is_key = 1;
 
 		// udp
-		datastore_t *udp_and_tcp = ds_add_child_create(server, "udp-and-tcp", NULL, NULL, NULL, 0);
-		ds_add_child_create(udp_and_tcp, "address", "127.0.0.1", NULL, NULL, 0); // inet-addr
+		datastore_t *udp_and_tcp = ds_add_child_create(server, "udp-and-tcp", NULL,
+		                           NULL, NULL, 0);
+		ds_add_child_create(udp_and_tcp, "address", "127.0.0.1", NULL, NULL,
+		                    0); // inet-addr
 		ds_add_child_create(udp_and_tcp, "port", "8088", NULL, NULL, 0); // int16
 	}
 
-	datastore_t *options = ds_add_child_create(dns_resolver, "options", NULL, NULL, NULL, 0);
+	datastore_t *options = ds_add_child_create(dns_resolver, "options", NULL, NULL,
+	                       NULL, 0);
 	ds_add_child_create(options, "timeout", "5", NULL, NULL, 0);
 	ds_add_child_create(options, "attempts", "2", NULL, NULL, 0);
 
 
 	// ietf-system-state
-	datastore_t *system_state = ds_add_child_create(&root, "system-state", NULL, ns, NULL, 0);
+	datastore_t *system_state = ds_add_child_create(&root, "system-state", NULL, ns,
+	                            NULL, 0);
 	ds_set_is_config(system_state, 0, 0);
 
-	datastore_t *platform = ds_add_child_create(system_state, "platform", NULL, ns, NULL, 0);
+	datastore_t *platform = ds_add_child_create(system_state, "platform", NULL, ns,
+	                        NULL, 0);
 
 	ds_add_child_create(platform, "os-name", "The awesome Linux", ns, NULL, 0);
 	ds_add_child_create(platform, "os-release", "Top noch", ns, NULL, 0);
 	ds_add_child_create(platform, "os-version", "latest", ns, NULL, 0);
 	ds_add_child_create(platform, "machine", "x86_64", ns, NULL, 0);
 
-	datastore_t *clock_state = ds_add_child_create(system_state, "clock", NULL, ns, NULL, 0);
+	datastore_t *clock_state = ds_add_child_create(system_state, "clock", NULL, ns,
+	                           NULL, 0);
 
-	datastore_t *current_datetime = ds_add_child_create(clock_state, "current_datetime", "now", ns, NULL, 0);
+	datastore_t *current_datetime = ds_add_child_create(clock_state,
+	                                "current_datetime", "now", ns, NULL, 0);
 	current_datetime->get = get_current_datetime;
 
-	datastore_t *boot_datetime = ds_add_child_create(clock_state, "boot-datetime", "before", ns, NULL, 0);
+	datastore_t *boot_datetime = ds_add_child_create(clock_state, "boot-datetime",
+	                             "before", ns, NULL, 0);
 	//boot_datetime->get = get_boot_datetime;
 
 	return 0;
@@ -250,7 +328,8 @@ int rpc_set_current_datetime(struct rpc_data *data)
 	/* TODO: use settimeofday */
 
 	char cmd[BUFSIZ];
-	char *date = roxml_get_content(roxml_get_chld(data->in, "current-datetime", 0), NULL, 0, NULL);
+	char *date = roxml_get_content(roxml_get_chld(data->in, "current-datetime", 0),
+	                               NULL, 0, NULL);
 
 	snprintf(cmd, BUFSIZ, "date -s %s", date);
 
@@ -325,7 +404,8 @@ __unused struct module *init()
 	create_store();
 
 	m.rpcs = rpc;
-	m.rpc_count = (sizeof(rpc) / sizeof(*(rpc))); // to be filled directly by code generator
+	m.rpc_count = (sizeof(rpc) / sizeof(*
+	                                    (rpc))); // to be filled directly by code generator
 	m.ns = ns;
 	m.datastore = &root;
 
