@@ -21,7 +21,7 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 #include <sys/types.h>
-
+#include <time.h>
 #include <uci.h>
 
 #include "freenetconfd/freenetconfd.h"
@@ -49,9 +49,9 @@ static void generic_update(datastore_t *node)
 	if (node) printf("Datastore node UPDATE\t%s: %s\n", node->name, node->value);
 }
 
-static int set_hostname(char *data)
+static int set_uci(char *cmd, char *data)
 {
-	char cmd[] = "system.@system[0].hostname=", *full_cmd;
+	char *full_cmd;
 	struct uci_context *c;
 	struct uci_ptr ptr;
 
@@ -73,44 +73,52 @@ static int set_hostname(char *data)
 	uci_save(c, ptr.p);
 
 	uci_free_context(c);
+	free(full_cmd);
+	free(cmd);
 
 	return 0;
 }
 
-static int set_location(char *data)
+static int set_hostname(datastore_t *self, char *data)
 {
-	char cmd[] = "system.@system[0].location=", *full_cmd;
-	struct uci_context *c;
-	struct uci_ptr ptr;
+	char cmd[] = "system.@system[0].hostname=";
+	return set_uci(cmd, data);
+}
 
-	full_cmd = malloc(strlen(data) + strlen(cmd) + 1);
+static int set_location(datastore_t *self, char *data)
+{
+	char cmd[] = "system.@system[0].location=";
+	return set_uci(cmd, data);
+}
 
-	strcpy(full_cmd, cmd);
-	strcat(full_cmd, data);
+static int set_contact(datastore_t *self, char *data)
+{
+	char cmd[] = "system.@system[0].contact=";
+	return set_uci(cmd, data);
+}
 
-	c = uci_alloc_context();
+static int set_ntp_server_name(datastore_t *self, char *data)
+{
+	datastore_t *tmp = self->parent->prev;
+	int index = 0;
 
-	memset(&ptr, 0, sizeof(ptr));
-
-	if (uci_lookup_ptr(c, &ptr, full_cmd, true) != UCI_OK)
+	while (tmp->prev)
 	{
-		return -1;
+		tmp = tmp->prev;
+		if (strcmp(tmp->name, "name"))index++;
 	}
 
-	uci_set(c, &ptr);
-	uci_save(c, ptr.p);
+	char *path;
+	path = (char *) malloc(sizeof(char) * BUFSIZ);
+	snprintf(path, BUFSIZ, "system.@ntpserver[%d].name", index);
 
-	uci_free_context(c);
-
-	return 0;
+	return set_uci(path, data);
 }
 
-static char *get_hostname(datastore_t *datastore)
+static char *get_uci(char *path)
 {
-	char *path, *buf;
-
-	path = strdup("system.@system[0].hostname");
-
+	char *buf;
+	printf("%s\n", path);
 	if (uci_lookup_ptr(c, &p, path, true) != UCI_OK)
 	{
 		free(path);
@@ -121,11 +129,22 @@ static char *get_hostname(datastore_t *datastore)
 
 	buf = malloc(sizeof(char) * strlen(p.o->v.string));
 	strcpy(buf, p.o->v.string);
-
 	return buf;
 }
 
-static char *get_timezone_location(datastore_t *datastore)
+static char *get_hostname(datastore_t *self)
+{
+	char *path = strdup("system.@system[0].hostname");
+	return get_uci(path);
+}
+
+static char *get_contact(datastore_t *self)
+{
+	char *path = strdup("system.@system[0].contact");
+	return get_uci(path);
+}
+
+static char *get_timezone_location(datastore_t *self)
 {
 	FILE *fp = fopen("/etc/TZ", "r");
 	size_t n = 1024;
@@ -142,7 +161,7 @@ static char *get_timezone_location(datastore_t *datastore)
 	return buffer;
 }
 
-static int set_timezone_location(char *data)
+static int set_timezone_location(datastore_t *self, char *data)
 {
 	FILE *fp = fopen("/etc/TZ", "w");
 
@@ -158,15 +177,23 @@ static int set_timezone_location(char *data)
 	return 0;
 }
 
-
 //put number of list element in data
-static int set_server(char *data)
+static int set_server(datastore_t *self, char *data)
 {
+	printf("%s\n", self->value);
 	printf("%s\n", data);
 	return 0;
 }
 
-static char *get_current_datetime(datastore_t *datastore)
+static char *get_server(datastore_t *self)
+{
+	printf("Getting your servers.\n");
+	printf("%s\n", self->value);
+	printf("%s\n", self->name);
+	return 0;
+}
+
+static char *get_current_datetime(datastore_t *self)
 {
 	time_t rawtime;
 	struct tm *timeinfo;
@@ -176,31 +203,198 @@ static char *get_current_datetime(datastore_t *datastore)
 	return asctime(timeinfo);
 }
 
-static char *get_location(datastore_t *datastore)
+static char *get_location(datastore_t *self)
 {
-	char *path, *buf;
+	char *path = strdup("system.@system[0].location");
+	return get_uci(path);
+}
 
-	path = strdup("system.@system[0].location");
+static char *get_ntp_enable(datastore_t *self)
+{
+	char *path = strdup("system.ntp.enable");
+	return get_uci(path);
+}
 
-	if (uci_lookup_ptr(c, &p, path, true) != UCI_OK)
+static char *get_ntp_server_name(datastore_t *self)
+{
+	datastore_t *tmp = self->parent->prev;
+	int index = 0;
+
+	while (tmp->prev)
 	{
-		free(path);
-		DEBUG("uci error\n");
-		return NULL;
+		tmp = tmp->prev;
+		if (strcmp(tmp->name, "name"))index++;
 	}
-	free(path);
 
-	buf = malloc(sizeof(char) * strlen(p.o->v.string));
-	strcpy(buf, p.o->v.string);
+	char *path;
+	path = (char *) malloc(sizeof(char) * BUFSIZ);
+	snprintf(path, BUFSIZ, "system.@ntpserver[%d].name", index);
 
-	return buf;
+	return get_uci(path);
+}
+
+
+static datastore_t *create_server_udp(datastore_t *self, char *name,
+                                      char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *child = ds_add_child_create(self, name, value, NULL, NULL, 0);
+	if (strcmp(name, "address") == 0)
+	{
+
+	}
+	else if (strcmp(name, "port") == 0)
+	{
+
+	}
+	return child;
+}
+
+
+static datastore_t *create_server_child(datastore_t *self, char *name,
+                                        char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *child = ds_add_child_create(self, name, value, NULL, NULL,
+	                     0);
+
+	if (strcmp(name, "name") == 0)
+	{
+		child->get = get_ntp_server_name;
+		child->set = set_ntp_server_name;
+		child->is_key = 1;
+	}
+	else if (strcmp(name, "association_type") == 0)
+	{
+		ds_set_is_config(child, 0, 0);
+
+		//get
+	}
+	else if (strcmp(name, "iburst") == 0)
+	{
+		ds_set_is_config(child, 0, 0);
+
+	}
+	else if (strcmp(name, "prefer") == 0)
+	{
+		ds_set_is_config(child, 0, 0);
+	}
+	else if (strcmp(name, "udp") == 0)
+	{
+		child->create_child = create_server_udp;
+	}
+	else if (strcmp(name, "enabled") == 0)
+	{
+
+	}
+
+	return child;
+}
+
+static datastore_t *create_clock_child(datastore_t *self, char *name,
+                                       char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *child = ds_add_child_create(self, name, value, NULL, NULL,
+	                     0);
+
+	if (strcmp(name, "timezone-location"))
+	{
+		child->get = get_timezone_location;
+		child->set = set_timezone_location;
+	}
+	else if (strcmp(name, "timezone-utc-offset"))
+	{
+
+	}
+
+	return child;
+}
+
+static datastore_t *create_dns_resolver_server_udp_tcp (datastore_t *self,
+        char *name,
+        char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *child = ds_add_child_create(self, name, value, NULL, NULL,
+	                     0);
+	return child;	
+}
+
+static datastore_t *create_dns_resolver_server_child(datastore_t *self,
+        char *name,
+        char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *child = ds_add_child_create(self, name, value, NULL, NULL,
+	                     0);
+
+	if (strcmp(name, "name"))
+	{
+		child->is_key = 1;
+	}
+	else if (strcmp(name, "udp-and-tcp"))
+	{
+		child->create_child = create_dns_resolver_server_udp_tcp;
+	}
+	
+	return child;
+}
+
+static datastore_t *create_dns_resolver_child(datastore_t *self, char *name,
+        char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *child = ds_add_child_create(self, name, value, NULL, NULL,
+	                     0);
+	if (strcmp(name, "search"))
+	{
+		child->is_list = 1;
+	}
+	else if (strcmp(name, "server"))
+	{
+		child->create_child = create_dns_resolver_server_child;
+	}
+
+	return child;
+}
+
+static datastore_t *create_system_child(datastore_t *self, char *name,
+                                        char *value, char *ns, char *target_name, int target_position)
+{
+	datastore_t *child = ds_add_child_create(self, name, value, NULL, NULL,
+	                     0);
+
+	if (strcmp(name, "server"))
+	{
+		child->is_list = 1;
+		child->create_child = create_server_child;
+	}
+	else if (strcmp(name, "hostname"))
+	{
+		child->get = get_hostname;
+		child->set = set_hostname;
+	}
+	else if (strcmp(name, "location"))
+	{
+		child->get = get_location;
+		child->set = set_location;
+	}
+	else if (strcmp(name, "clock"))
+	{
+		child->create_child = create_clock_child;
+	}
+	else if (strcmp(name, "contact"))
+	{
+		child->get = get_contact;
+		child->set = set_contact;
+	}
+	else if (strcmp(name, "dns_resolver"))
+	{
+		child->create_child = create_dns_resolver_child;
+	}
+
+	return child;
 }
 
 static int create_store()
 {
 	// ietf-system
 	datastore_t *system = ds_add_child_create(&root, "system", NULL, ns, NULL, 0);
-	system->update = generic_update;
 
 	datastore_t *location = ds_add_child_create(system, "location", "Zagreb", NULL,
 	                        NULL, 0); // string
@@ -213,10 +407,13 @@ static int create_store()
 	hostname->get = get_hostname;
 	hostname->set = set_hostname;
 	hostname->update = generic_update;
-	
-	ds_add_child_create(system, "contact", "yes, please", NULL, NULL, 0); // string
+
+	datastore_t *contact = ds_add_child_create(system, "contact", "yes, please",
+	                       NULL, NULL, 0); // string
+	contact->get = get_contact;
+	contact->set = set_contact;
+
 	datastore_t *clock = ds_add_child_create(system, "clock", NULL, NULL, NULL, 0);
-	datastore_t *ntp = ds_add_child_create(system, "ntp", NULL, NULL, NULL, 0);
 
 	// clock
 	datastore_t *timezone_location = ds_add_child_create(clock, "timezone-location",
@@ -227,26 +424,34 @@ static int create_store()
 	ds_add_child_create(clock, "timezone-utc-offset", "60", NULL, NULL, 0); // int16
 	//TODO
 	//does offset needs to written
-	
+	datastore_t *ntp = ds_add_child_create(system, "ntp", NULL, NULL, NULL, 0);
+	ntp->create_child = create_server_child;
+
 
 	// ntp
-	ds_add_child_create(ntp, "enabled", "false", NULL, NULL, 0); // bool
-
+	datastore_t *ntp_enable = ds_add_child_create(ntp, "enabled", "false", NULL,
+	                          NULL, 0); // bool
+	ntp_enable->get = get_ntp_enable;
+	//ntp_enable->set = set_ntp_enable;
 	//TODO
 	//how to bind function to list element
-	//information ti obrain index
+	//information to obtain index
 	// server list
 	for (int i = 1; i < 3; i++)
 	{
 		//server
 		datastore_t *server = ds_add_child_create(ntp, "server", NULL, NULL, NULL, 0);
-		server->set = set_server;
+		//server->set = set_server;
+		//server->get = get_server;
 		server->is_list = 1;
 		char server_name[BUFSIZ];
 		snprintf(server_name, BUFSIZ, "server%d", i);
 		datastore_t *name = ds_add_child_create(server, "name", server_name, NULL, NULL,
 		                                        0); // string
 		name->is_key = 1;
+		name->get = get_ntp_server_name;
+		name->set = set_ntp_server_name;
+
 
 		datastore_t *association_type = ds_add_child_create(server, "association-type",
 		                                NULL, NULL, NULL, 0);
@@ -256,6 +461,7 @@ static int create_store()
 		ds_set_is_config(iburst, 0, 0);
 		datastore_t *prefer = ds_add_child_create(server, "prefer", "false", NULL, NULL,
 		                      0);
+		//prefer->get = get_server;
 		ds_set_is_config(prefer, 0, 0);
 
 		// udp
