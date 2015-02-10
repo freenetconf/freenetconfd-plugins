@@ -1,0 +1,47 @@
+module "choice" {
+  namespace "urn:ietf:params:xml:ns:yang:choice";
+  prefix "ch";
+  description "choice module";
+  contact "zvonimir.fras@sartura.hr";
+
+  revision "2015-02-10" {
+    description
+      "Initial revision.";
+  }
+
+  container "player" {
+    choice choose {
+      description
+        "How you want to play your music";
+
+      case instrument {
+        container instrument {
+          leaf "name" {
+            description "instrument name, i.e. guitar, violin, synthesizer...";
+            type "string";
+          }
+          leaf "strings" {
+            description "number of strings";
+            type int8;
+          }
+        }
+      }
+      case electronic {
+        container electronic {
+          leaf "name" {
+            description "name, i.e. ithing, laptop, Raspberry Pi...";
+            type "string";
+          }
+          leaf "CPU" {
+            description "CPU info, number of cores, speed...";
+            type "string";
+          }
+          leaf "RAM" {
+            description "RAM in KiB";
+            type int16;
+          }
+        }
+      }
+    }
+  }
+}
