@@ -25,9 +25,9 @@ char *ns = "urn:ietf:params:xml:ns:yang:sandwich";
 
 datastore_t root = DATASTORE_ROOT_DEFAULT;
 
-static int set_name(char *name)
+static int set_name(datastore_t *self, char *value)
 {
-	printf("Name set to: %s\n", name);
+	printf("Name set to: %s\n", value);
 	return 0;
 }
 

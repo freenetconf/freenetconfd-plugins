@@ -37,7 +37,7 @@ static char *filename_ac = "/tmp/freenetconfd-vehicle_ac";
 datastore_t root = DATASTORE_ROOT_DEFAULT;
 
 
-static int set_node_rims(char *data)
+static int set_node_rims(datastore_t *self, char *value)
 {
 	FILE *fp = fopen(filename_rims, "w");
 
@@ -47,13 +47,13 @@ static int set_node_rims(char *data)
 		return -1;
 	}
 
-	fprintf(fp, "%s\n", data);
+	fprintf(fp, "%s\n", value);
 	fclose(fp);
 
 	return 0;
 }
 
-static int set_node_color(char *data)
+static int set_node_color(datastore_t *self, char *value)
 {
 	FILE *fp = fopen(filename_color, "w");
 
@@ -63,13 +63,13 @@ static int set_node_color(char *data)
 		return -1;
 	}
 
-	fprintf(fp, "%s\n", data);
+	fprintf(fp, "%s\n", value);
 	fclose(fp);
 
 	return 0;
 }
 
-static int set_node_abs(char *data)
+static int set_node_abs(datastore_t *self, char *value)
 {
 	FILE *fp = fopen(filename_abs, "w");
 
@@ -79,13 +79,13 @@ static int set_node_abs(char *data)
 		return -1;
 	}
 
-	fprintf(fp, "%s\n", data);
+	fprintf(fp, "%s\n", value);
 	fclose(fp);
 
 	return 0;
 }
 
-static int set_node_ac(char *data)
+static int set_node_ac(datastore_t *self, char *value)
 {
 	FILE *fp = fopen(filename_ac, "w");
 
@@ -95,13 +95,13 @@ static int set_node_ac(char *data)
 		return -1;
 	}
 
-	fprintf(fp, "%s\n", data);
+	fprintf(fp, "%s\n", value);
 	fclose(fp);
 
 	return 0;
 }
 
-static int set_node_name(char *data)
+static int set_node_name(datastore_t *self, char *value)
 {
 	FILE *fp = fopen(filename_name, "w");
 
@@ -111,7 +111,7 @@ static int set_node_name(char *data)
 		return -1;
 	}
 
-	fprintf(fp, "%s\n", data);
+	fprintf(fp, "%s\n", value);
 	fclose(fp);
 
 	return 0;

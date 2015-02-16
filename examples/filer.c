@@ -30,7 +30,7 @@ static char *filename = "/tmp/freenetconfd-filer";
 
 datastore_t root = DATASTORE_ROOT_DEFAULT;
 
-static int set_data(char *data)
+static int set_data(datastore_t *self, char *value)
 {
 	FILE *fp = fopen(filename, "w");
 
@@ -40,7 +40,7 @@ static int set_data(char *data)
 		return -1;
 	}
 
-	fprintf(fp, "%s\n", data);
+	fprintf(fp, "%s\n", value);
 	fclose(fp);
 	return 0;
 }
