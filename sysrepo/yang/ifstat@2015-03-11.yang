@@ -1,0 +1,109 @@
+module ifstat {
+  namespace "urn:ietf:params:xml:ns:yang:ifstat";
+  prefix ifstat;
+
+container interfaces-state {
+    list interface {
+      key "name";
+
+      leaf name {
+        type string;
+      }
+
+      leaf type {
+        type string;
+      }
+
+      leaf admin-status {
+        type string;
+      }
+
+      leaf oper-status {
+        type string;
+      }
+
+      leaf last-status {
+        type string;
+     }
+
+      leaf if-index {
+        type string;
+      }
+
+      leaf phys-address {
+        type string;
+      }
+
+      leaf-list higher-layer-if {
+        type string;
+      }
+
+      leaf-list lower-layer-if {
+        type string;
+      }
+
+      leaf speed {
+        type string;
+      }
+
+      container statistics {
+
+        leaf discontinuity-time {
+          type string;
+        }
+
+        leaf in-octets {
+          type string;
+        }
+
+        leaf in-unicast-pkts {
+          type string;
+        }
+
+        leaf in-broadcast-pkts {
+          type string;
+        }
+
+        leaf in-multicast-pkts {
+          type string;
+        }
+
+        leaf in-discards {
+          type string;
+        }
+
+        leaf in-errors {
+          type string;
+        }
+
+        leaf in-unknown-protos {
+          type string;
+        }
+
+        leaf out-octets {
+          type string;
+        }
+
+        leaf out-unicast-pkts {
+          type string;
+        }
+
+        leaf out-broadcast-pkts {
+          type string;
+        }
+
+        leaf out-multicast-pkts {
+          type string;
+        }
+
+        leaf out-discards {
+          type string;
+        }
+
+        leaf out-errors {
+          type string;
+        }
+      }
+    }
+  }
+}
