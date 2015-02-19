@@ -352,6 +352,18 @@ int set_system_ntp_server_name(datastore_t *self, char *value)
 	return add_list_uci("system.ntp.server", value);
 }
 
+static char* time_to_string(const struct tm *timeptr)
+{
+	static char result[26];
+	sprintf(result, "%.4d-%.2d-%.2dT%.2d:%.2d:%.2d\n",
+		1900 + timeptr->tm_year,
+		timeptr->tm_mon,
+		timeptr->tm_mday,
+		timeptr->tm_hour, timeptr->tm_min, timeptr->tm_sec
+		);
+	return result;
+}
+
 char *get_current_datetime(datastore_t *self)
 {
 	time_t rawtime;
@@ -360,7 +372,7 @@ char *get_current_datetime(datastore_t *self)
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	return strdup(asctime(timeinfo));
+	return strdup(time_to_string(timeinfo));
 }
 
 char *get_boot_datetime(datastore_t *self)
@@ -375,7 +387,7 @@ char *get_boot_datetime(datastore_t *self)
 	rawtime -= info.uptime;
 	timeinfo = localtime(&rawtime);
 
-	return strdup(asctime(timeinfo));
+	return strdup(time_to_string(timeinfo));
 }
 
 void update_system_ntp(datastore_t *self)
