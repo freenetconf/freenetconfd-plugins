@@ -179,7 +179,7 @@ static char *get_node_abs(datastore_t *datastore)
 
 	if (!fp)
 	{
-		return strcpy(buffer, "No data yet.");
+		return strcpy(buffer, "false");
 	}
 
 	getline(&buffer, &n, fp);
