@@ -39,7 +39,7 @@ __unused struct module *init();
 __unused void destroy();
 
 struct module m;
-char *ns = "urn:ietf:params:xml:ns:yang:ietf-system";
+char *ns = "urn:ietf:params:xml:ns:yang:ietf-system-openwrt";
 
 datastore_t root = DATASTORE_ROOT_DEFAULT;
 
@@ -309,14 +309,7 @@ char *get_system_clock_timezone_name(datastore_t *self)
 int set_system_clock_timezone_name(datastore_t *self, char *value)
 {
 	char cmd[] = "system.@system[0].timezone=";
-	char *timezone = NULL;
-
-	if (!strcmp(value, "Africa/Abidjan"))
-		timezone = "UTC";
-	else if (!strcmp(value, "Europe/Zagreb"))
-		timezone = "CET-1CEST,M3.5.0,M10.5.0/3";
-
-	return set_uci(cmd, timezone);
+	return set_uci(cmd, value);
 }
 
 char *get_system_clock_timezone_utc_offset(datastore_t *self)
@@ -337,14 +330,7 @@ char *get_system_clock_timezone_utc_offset(datastore_t *self)
 int set_system_clock_timezone_utc_offset(datastore_t *self, char *value)
 {
 	char cmd[] = "system.@system[0].timezone=";
-	char *timezone = NULL;
-
-	if (!strcmp(value, "0"))
-		timezone = "UTC";
-	else if (!strcmp(value, "60"))
-		timezone = "CET-1CEST,M3.5.0,M10.5.0/3";
-
-	return set_uci(cmd, timezone);
+	return set_uci(cmd, value);
 }
 
 int set_system_ntp_server_name(datastore_t *self, char *value)
@@ -1089,3 +1075,4 @@ __unused void destroy()
 	ds_free(root.child, 1);
 	root.child = NULL;
 }
+
