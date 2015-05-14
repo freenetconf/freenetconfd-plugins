@@ -36,7 +36,7 @@ INSTALL(
 		example_shopping_list
 		example_vehicle
 		example_choice
-	LIBRARY DESTINATION lib/
+	LIBRARY DESTINATION lib/freenetconfd/
 )
 
 INSTALL(

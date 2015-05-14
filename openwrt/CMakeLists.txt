@@ -13,7 +13,7 @@ SET_TARGET_PROPERTIES(openwrt_ietf_system PROPERTIES OUTPUT_NAME ietf-system PRE
 INSTALL(
 	TARGETS
 		openwrt_ietf_system
-	LIBRARY DESTINATION lib/
+	LIBRARY DESTINATION lib/freenetconfd/
 )
 
 INSTALL(
