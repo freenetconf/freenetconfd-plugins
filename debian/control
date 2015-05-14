@@ -1,0 +1,12 @@
+Source: freenetconfd-plugin-sysrepo
+Section: devel
+Priority: optional
+Maintainer: Luka Perkov <luka.perkov@sartura.hr>
+Build-Depends: debhelper (>= 8.0.0), cmake, freenetconfd
+Standards-Version: 3.9.4
+Homepage: http://www.freenetconf.org/
+
+Package: freenetconfd-plugin-sysrepo
+Architecture: amd64 i386
+Depends: freenetconfd
+Description: NETCONF server
