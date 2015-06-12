@@ -27,8 +27,11 @@ SET_TARGET_PROPERTIES(example_vehicle PROPERTIES OUTPUT_NAME vehicle PREFIX "")
 ADD_LIBRARY(example_choice MODULE choice.c)
 SET_TARGET_PROPERTIES(example_choice PROPERTIES OUTPUT_NAME choice PREFIX "")
 
+ADD_LIBRARY(example_hello MODULE hello.c)
+SET_TARGET_PROPERTIES(example_hello PROPERTIES OUTPUT_NAME hello PREFIX "")
+
 INSTALL(
-	TARGETS 
+	TARGETS
 		example_black_book
 		example_filer
 		example_house_lockdown
@@ -36,6 +39,7 @@ INSTALL(
 		example_shopping_list
 		example_vehicle
 		example_choice
+		example_hello
 	LIBRARY DESTINATION lib/freenetconfd/
 )
 
@@ -48,5 +52,6 @@ INSTALL(
 		yang/shopping-list@2014-11-28.yang
 		yang/vehicle@2015-01-02.yang
 		yang/choice@2015-02-10.yang
+		yang/hello@2015-02-10.yang
 	DESTINATION etc/yang/
 )

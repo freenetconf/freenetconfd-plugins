@@ -1,0 +1,26 @@
+module info {
+  namespace "urn:ietf:params:xml:ns:yang:example";
+  prefix ob;
+
+  description
+    "hello world";
+  contact
+    "mislav.novakovic@sartura.hr";
+
+  revision 2015-06-08 {
+    description
+      "Inital revision";
+  }
+
+  container hello {
+    leaf foo {
+      type string;
+    }
+    leaf bar {
+      type string;
+    }
+    leaf toto {
+      type string;
+    }
+  }
+}
