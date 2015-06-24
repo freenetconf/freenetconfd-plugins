@@ -52,6 +52,6 @@ INSTALL(
 		yang/shopping-list@2014-11-28.yang
 		yang/vehicle@2015-01-02.yang
 		yang/choice@2015-02-10.yang
-		yang/hello@2015-02-10.yang
+		yang/hello@2015-06-08.yang
 	DESTINATION etc/yang/
 )
